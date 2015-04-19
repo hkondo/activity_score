@@ -1,0 +1,74 @@
+<h1>星取り表</h1>
+
+<%
+    # listing verbs.
+    _verbs = {}
+    @activities.each{|a|
+      _verbs[a.verb] = true
+    }
+    verbs = []
+    _verbs.each{|k, v|
+      verbs << k
+    }
+%>
+
+<%
+    # totaling magnitude.
+    magnitude = {} # key is day and verb.
+    day = nil
+    days = []
+    @activities.each{|a|
+      d = a.created_at.to_datetime.beginning_of_day
+      if d != day
+        day = d
+        days << day
+      end
+
+      mags = magnitude[day]
+      if mags == nil
+        mags = {}
+	magnitude[day] = mags
+      end
+      mag = mags[a.verb]
+      mag = 0 if mag == nil
+      mag += a.magnitude
+      magnitude[day][a.verb] = mag
+    }
+%>
+
+<table>
+  <thead>
+    <tr>
+    <th>日付</th>
+    <th>一行日記</th>
+      <% verbs.each{|v| %>
+      <th><%= v %></th>
+      <% } %>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% days.each{|day| %>
+    <tr>
+      <td><%= day %></td>
+      <td></td> <!-- 一行日記は未実装 -->
+      <% verbs.each{|verb| %>
+      <td>
+	<%=
+	   mag = magnitude[day][verb]
+	   if mag != nil
+	     mag.to_s
+	   else
+	     puts ""
+	   end
+	 %>	   
+      </td>
+      <% } %>
+    </tr>
+    <% } %>
+  </tbody>
+</table>
+
+<p>
+<%= link_to 'Back', activities_path %>
+</p>
